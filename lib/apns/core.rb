@@ -1,3 +1,4 @@
+require 'pp'
 module APNS
   require 'socket'
   require 'openssl'
@@ -21,12 +22,26 @@ module APNS
   def self.send_notifications(notifications)
     sock, ssl = self.open_connection
 
+    packed_nofications = self.packed_nofications(notifications)
+
     notifications.each do |n|
-      ssl.write(n.packaged_notification)
+      ssl.write(packed_nofications)
     end
 
     ssl.close
     sock.close
+  end
+
+  def self.packed_nofications(notifications)
+    bytes = ''
+
+    notifications.each do |notification|
+      # prepend command 2 (unsigned char [1 byte]) and size (unsigend int [4 byte], big endian)
+      pn = notification.packaged_notification
+      bytes << ([2, pn.bytesize].pack('CN') + pn)
+    end
+
+    bytes
   end
 
   def self.feedback
@@ -38,6 +53,9 @@ module APNS
       timestamp, token_size, token = message.unpack('N1n1H*')
       apns_feedback << [Time.at(timestamp), token]
     end
+
+    response = ssl.read(6)
+    pp response.unpack('CCH*') if response
 
     ssl.close
     sock.close
