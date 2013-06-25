@@ -13,24 +13,21 @@ module APNS
         self.badge = message[:badge]
         self.sound = message[:sound]
         self.other = message[:other]
+        self.message_identifier = message[:message_identifier]
+        self.content_availible = !message[:content_availible].nil?
+        self.expiration_date = message[:expiration_date]
+        self.priority = if self.content_availible
+          message[:priority] || 5
+        else
+          message[:priority] || 10
+        end
       elsif message.is_a?(String)
         self.alert = message
       else
         raise "Notification needs to have either a hash or string"
       end
 
-      
-      self.content_availible = message[:content_availible]
-      self.message_identifier = message[:message_identifier] || OpenSSL::Random.random_bytes(4)
-
-      self.expiration_date = message[:expiration_date]
-
-      self.priority = if self.content_availible
-        message[:priority] || 5
-      else
-        message[:priority] || 10
-      end
-      
+      self.message_identifier ||= OpenSSL::Random.random_bytes(4)
     end
         
     def packaged_notification
