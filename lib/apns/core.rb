@@ -36,7 +36,9 @@ module APNS
     bytes = ''
 
     notifications.each do |notification|
-      # prepend command 2 (unsigned char [1 byte]) and size (unsigend int [4 byte], big endian)
+      # Each notification frame consists of
+      # 1. (e.g. protocol version) 2 (unsigned char [1 byte]) 
+      # 2. size of the full frame (unsigend int [4 byte], big endian)
       pn = notification.packaged_notification
       bytes << ([2, pn.bytesize].pack('CN') + pn)
     end

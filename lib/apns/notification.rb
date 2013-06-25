@@ -40,6 +40,10 @@ module APNS
       pe = (self.expiration_date || 0).to_i
       pr = self.priority
 
+      # Each item consist of
+      # 1. unsigned char [1 byte] is the item (type) number according to Apple's docs
+      # 2. short [big endian, 2 byte] is the size of this item
+      # 3. item data, depending on the type fixed or variable length
       data = ''
       data << [1, pt.bytesize, pt].pack("CnA*")
       data << [2, pm.bytesize, pm].pack("CnA*")
