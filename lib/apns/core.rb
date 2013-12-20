@@ -40,7 +40,7 @@ module APNS
       bytes << ([2, pn.bytesize].pack('CN') + pn)
     end
 
-    bytes = [2, bytes.bytesize].pack('CN') + bytes
+    bytes
   end
 
   def self.feedback
