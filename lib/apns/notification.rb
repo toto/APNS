@@ -48,7 +48,12 @@ module APNS
       data << [4, 4, pe].pack("CnN")
       data << [5, 1, pr].pack("CnC")
       
-      data
+      # Return the full notification frame:
+      # Each notification frame consists of
+      # 1. (e.g. protocol version) 2 (unsigned char [1 byte])
+      # 2. size of the full frame (unsigend int [4 byte], big endian)
+      # 3. the data assebled above
+      ([2, data.bytesize].pack('CN') + data)
     end
   
     def packaged_token
@@ -64,6 +69,6 @@ module APNS
 
       aps.merge!(self.other) if self.other
       aps.to_json
-    end    
+    end
   end
 end
